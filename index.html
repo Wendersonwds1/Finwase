@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FinWise — Controle Financeiro</title>
+
+<!-- ══ PWA ESSENTIALS ══════════════════════════ -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb" id="metaThemeColor">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="FinWise">
+
+<!-- ══ iOS / Safari PWA ════════════════════════ -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FinWise">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+
+<!-- ══ ICONS ════════════════════════════════════ -->
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="96x96"   href="icons/icon-96x96.png">
+<link rel="shortcut icon" href="icons/icon-96x96.png">
+
+<!-- ══ SEO / SOCIAL ═════════════════════════════ -->
+<meta name="description" content="Controle financeiro pessoal inteligente com análise automática, poupança integrada e insights em tempo real.">
+<meta name="keywords" content="finanças pessoais, controle financeiro, poupança, orçamento, despesas">
+<meta name="author" content="FinWise">
+
+<!-- ══ MICROSOFT TILES ══════════════════════════ -->
+<meta name="msapplication-TileColor" content="#2563eb">
+<meta name="msapplication-TileImage" content="icons/icon-144x144.png">
+<meta name="msapplication-config" content="none">
+
+<!-- ══ SAFE AREA (iPhone notch / Dynamic Island) -->
+<style>
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  .sidebar { padding-left: env(safe-area-inset-left); }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══ SPLASH SCREEN ═══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="2" x2="12" y2="22"/>
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </svg>
+  </div>
+  <div class="splash-title">Fin<span>Wise</span></div>
+  <div class="splash-tagline">Seu controle financeiro inteligente</div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+
+<!-- ══ ONBOARDING ══════════════════════════════════════ -->
+<div class="overlay" id="onboardingOverlay" style="display:none">
+  <div class="onboarding-modal">
+    <div class="ob-progress-bar"><div class="ob-progress-fill" id="obProgressFill" style="width:25%"></div></div>
+
+    <!-- Step 1: Welcome -->
+    <div class="ob-step active" id="ob-step-1">
+      <div class="ob-emoji">👋</div>
+      <div class="ob-title">Bem-vindo ao FinWise!</div>
+      <div class="ob-desc">Seu assistente financeiro pessoal. Vamos configurar tudo em menos de um minuto.</div>
+      <div class="ob-step-counter">Passo 1 de 4</div>
+      <button class="ob-btn" onclick="obNext(2)">Começar →</button>
+    </div>
+
+    <!-- Step 2: Income -->
+    <div class="ob-step" id="ob-step-2">
+      <div class="ob-emoji">💰</div>
+      <div class="ob-title">Qual é sua renda mensal?</div>
+      <div class="ob-desc">Usamos isso para calcular seu saldo disponível e taxa de poupança.</div>
+      <div class="ob-input-group" style="width:100%;text-align:left">
+        <label class="form-label">Renda mensal (R$)</label>
+        <input type="number" class="form-input" id="obIncome" placeholder="Ex: 3.500" step="0.01" style="font-size:20px;font-weight:800;text-align:center"/>
+      </div>
+      <div class="ob-step-counter">Passo 2 de 4</div>
+      <button class="ob-btn" onclick="obNext(3)">Continuar →</button>
+      <button class="ob-btn-ghost" onclick="obNext(3)">Pular por agora</button>
+    </div>
+
+    <!-- Step 3: Theme -->
+    <div class="ob-step" id="ob-step-3">
+      <div class="ob-emoji">🎨</div>
+      <div class="ob-title">Escolha seu tema</div>
+      <div class="ob-desc">Como você prefere visualizar suas finanças?</div>
+      <div class="ob-theme-row" style="width:100%">
+        <div class="ob-theme-opt sel" id="obThemeLight" onclick="obSelectTheme('light')">
+          <span class="ob-theme-icon">☀️</span>
+          <div class="ob-theme-label">Claro</div>
+        </div>
+        <div class="ob-theme-opt" id="obThemeDark" onclick="obSelectTheme('dark')">
+          <span class="ob-theme-icon">🌙</span>
+          <div class="ob-theme-label">Escuro</div>
+        </div>
+      </div>
+      <div class="ob-step-counter">Passo 3 de 4</div>
+      <button class="ob-btn" onclick="obNext(4)">Continuar →</button>
+    </div>
+
+    <!-- Step 4: Ready -->
+    <div class="ob-step" id="ob-step-4">
+      <div class="ob-emoji">🚀</div>
+      <div class="ob-title">Tudo configurado!</div>
+      <div class="ob-desc">Agora registre sua primeira conta ou explore o app. Você pode ativar notificações para lembrar de contas a vencer.</div>
+      <div class="ob-step-counter">Passo 4 de 4</div>
+      <button class="ob-btn" onclick="obFinish(true)">🔔 Ativar lembretes</button>
+      <button class="ob-btn-ghost" onclick="obFinish(false)">Explorar sem lembretes</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-head">
+    <div class="logo">
+      <svg class="logo-svg" viewBox="0 0 220 52" xmlns="http://www.w3.org/2000/svg" aria-label="FinWise">
+        <!-- Icon background -->
+        <rect x="0" y="4" width="44" height="44" rx="12"
+          fill="url(#lgrad)"/>
+        <defs>
+          <linearGradient id="lgrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2563eb"/>
+            <stop offset="100%" stop-color="#1d4ed8"/>
+          </linearGradient>
+          <linearGradient id="wcolor" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#60a5fa"/>
+          </linearGradient>
+        </defs>
+        <!-- $ icon -->
+        <line x1="22" y1="13" x2="22" y2="39" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M28 17 Q35 14 35 21 Q35 27 22 26 Q9 25 9 32 Q9 38 22 37"
+          fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+        <!-- Wordmark: Fin white -->
+        <text x="54" y="36"
+          font-family="'Plus Jakarta Sans',system-ui,sans-serif"
+          font-size="28" font-weight="800" letter-spacing="-1"
+          fill="var(--text)">Fin</text>
+        <!-- Wordmark: Wise blue -->
+        <text x="97" y="36"
+          font-family="'Plus Jakarta Sans',system-ui,sans-serif"
+          font-size="28" font-weight="800" letter-spacing="-1"
+          fill="url(#wcolor)">Wise</text>
+      </svg>
+    </div>
+    <div class="nav">
+      <button class="nav-btn active" onclick="goTo('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Visão Geral</span>
+      </button>
+      <button class="nav-btn" onclick="goTo('contas',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Contas</span>
+      </button>
+      <button class="nav-btn" onclick="goTo('analise',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Análise</span>
+      </button>
+      <button class="nav-btn" onclick="goTo('historico',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Histórico</span>
+      </button>
+      <button class="nav-btn" onclick="goTo('metas',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <span>Metas</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="timeline-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+    <div class="tl-label">Linha do Tempo</div>
+    <div class="timeline" id="timelineList"></div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="footer-row">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span>Sincronizado</span>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="notif-btn" id="notifBtn" onclick="toggleNotifications()" title="Notificações de contas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="notif-dot"></div>
+        </button>
+        <button class="theme-btn" onclick="toggleTheme()" title="Alternar tema">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIcon">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-nav">
+      <button class="mnb" onclick="shiftMonth(-1)" title="Mês anterior">‹</button>
+      <button class="mnb" onclick="shiftMonth(1)" title="Próximo mês">›</button>
+    </div>
+    <div class="tb-month-name" id="barMonthName">—</div>
+    <span class="tb-badge" id="barBadge">Atual</span>
+    <div class="tb-filters">
+      <button class="filter-btn active" id="filterCurr" onclick="setFilter('current')">Este Mês</button>
+      <button class="filter-btn" id="filterHist" onclick="setFilter('history')">Histórico</button>
+    </div>
+    <button class="tb-today-btn" onclick="jumpToToday()">Hoje</button>
+
+    <!-- Mobile-only controls -->
+    <div class="tb-mobile-controls">
+      <button class="notif-btn" id="notifBtnMobile" onclick="toggleNotifications()" title="Notificações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot"></div>
+      </button>
+      <button class="theme-btn" onclick="toggleTheme()" title="Alternar tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIconMobile">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="feedbackBanner" class="feedback-banner info" style="display:none">
+    <span class="fb-emoji">👋</span><span class="fb-text"></span>
+  </div>
+
+  <!-- ── DASHBOARD ────────────────────────────── -->
+  <div class="page active" id="page-dashboard">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Visão Geral</div>
+        <div class="ph-sub">Resumo financeiro do mês</div>
+      </div>
+      <button class="btn btn-primary" id="btnNovaConta" onclick="openModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Conta
+      </button>
+    </div>
+
+    <div id="readonlyNotice" style="display:none" class="readonly-notice">
+      📅 Você está visualizando um mês passado. Os dados são apenas leitura.
+    </div>
+
+    <div class="month-prog-card" id="monthProgCard">
+      <div class="mprog-header">
+        <div class="mprog-title" id="mprogTitle">Progresso do Mês</div>
+        <div class="mprog-pct" id="mprogPct">0%</div>
+      </div>
+      <div class="mprog-track"><div class="mprog-fill" id="mprogFill" style="width:0%"></div></div>
+      <div class="mprog-sub" id="mprogSub">Calculando...</div>
+    </div>
+
+    <div class="card income-card">
+      <div class="inc-side">
+        <div class="inc-label">Renda Base</div>
+        <div class="inc-row">
+          <span class="inc-pfx">R$</span>
+          <input type="number" class="inc-field" id="incomeField" placeholder="0,00" step="0.01" oninput="onIncome(this.value)"/>
+        </div>
+      </div>
+      <div class="inc-divider"></div>
+      <div class="inc-balance">
+        <div class="inc-bal-label">Saldo Livre</div>
+        <div class="inc-bal-val" id="availAmt">R$ 0</div>
+        <div class="inc-bal-sub" id="availSub">após despesas e poupança</div>
+      </div>
+    </div>
+
+    <div class="dash-row">
+      <div class="dstat">
+        <div class="dstat-icon di-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></div>
+        <div class="dstat-label">Total do Mês</div>
+        <div class="dstat-val" id="ds-total">R$ 0</div>
+        <div class="dstat-sub" id="ds-totalSub">0 contas</div>
+      </div>
+      <div class="dstat">
+        <div class="dstat-icon di-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg></div>
+        <div class="dstat-label">Poupado no Mês</div>
+        <div class="dstat-val" id="ds-saved">R$ 0</div>
+        <div class="dstat-sub" id="ds-savedSub">da renda</div>
+      </div>
+      <div class="dstat">
+        <div class="dstat-icon di-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <div class="dstat-label">Maior Gasto</div>
+        <div class="dstat-val" id="ds-best">—</div>
+        <div class="dstat-sub" id="ds-bestSub">sem registros</div>
+      </div>
+    </div>
+
+    <div class="card savings-card">
+      <div class="sav-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 7H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+          <path d="M16 7V5a2 2 0 0 0-4 0v2"/>
+          <line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
+        </svg>
+      </div>
+      <div class="sav-info">
+        <div class="sav-label">Minha Poupança</div>
+        <div class="sav-val" id="savingsVal">R$ 0,00</div>
+        <div class="sav-sub" id="savingsSub">Total acumulado</div>
+        <div class="sav-deduct-info" id="savDeductInfo" style="display:none">
+          💡 Descontado do saldo deste mês
+        </div>
+      </div>
+      <div class="sav-actions">
+        <button class="sav-btn" onclick="openSavingsModal('add')">+ Depositar</button>
+        <button class="sav-btn" onclick="openSavingsModal('remove')">− Retirar</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:13px">
+      <div class="extra-head">
+        <div class="extra-head-title">💸 Entradas Extras</div>
+        <button class="btn btn-ghost btn-sm" id="btnAddExtra" onclick="openExtraModal()">+ Adicionar</button>
+      </div>
+      <div id="extraList"><div class="empty-inline">Nenhuma entrada extra registrada.</div></div>
+    </div>
+
+    <div class="card prog-card" style="margin-bottom:13px">
+      <div class="prog-hd"><span>Uso do orçamento</span><span id="budPct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill fill-blue" id="budBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="shd">
+      <div class="shd-title">Transações Recentes</div>
+      <button class="btn btn-ghost btn-sm" onclick="goTo('contas',document.querySelectorAll('.nav-btn')[1])">Ver todas →</button>
+    </div>
+    <div class="bills-wrap" id="recentList"></div>
+  </div>
+
+  <!-- ── CONTAS ──────────────────────────────── -->
+  <div class="page" id="page-contas">
+    <div class="ph">
+      <div><div class="ph-title">Contas</div><div class="ph-sub">Todas as despesas do mês</div></div>
+      <button class="btn btn-primary" id="btnAddConta" onclick="openModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar
+      </button>
+    </div>
+    <div class="bills-wrap" id="billsList"></div>
+  </div>
+
+  <div class="page" id="page-analise">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Análise</div>
+        <div class="ph-sub" id="analiseSub">Visão financeira completa</div>
+      </div>
+      <div class="ph-actions">
+        <button class="btn btn-ghost btn-sm btn-share" onclick="openShareCard()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Compartilhar
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="exportPDF()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- ✦ Smart Filter Bar -->
+    <div class="card analise-filters">
+      <div class="af-row">
+        <div class="af-group">
+          <label class="af-label">Categoria</label>
+          <select class="af-select" id="afCat" onchange="applyAnaliseFilters()">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+        <div class="af-group">
+          <label class="af-label">Período</label>
+          <select class="af-select" id="afPeriod" onchange="applyAnaliseFilters()">
+            <option value="current">Mês atual</option>
+            <option value="last3">Últimos 3 meses</option>
+            <option value="last6">Últimos 6 meses</option>
+            <option value="year">Este ano</option>
+          </select>
+        </div>
+        <div class="af-group af-group-toggle">
+          <label class="af-label">Status</label>
+          <div class="af-toggle">
+            <button class="af-tog-btn active" id="afTipoAll" onclick="setAfTipo('all',this)">Tudo</button>
+            <button class="af-tog-btn" id="afTipoPaid" onclick="setAfTipo('paid',this)">Pagas</button>
+            <button class="af-tog-btn" id="afTipoPend" onclick="setAfTipo('pending',this)">Pendentes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✦ Comparison Cards -->
+    <div class="comp-row" id="compRow"></div>
+
+    <!-- ✦ Charts Grid: Bar + Donut -->
+    <div class="charts-grid">
+      <div class="card chart-card">
+        <div class="chart-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Gastos por Categoria
+        </div>
+        <div id="barChartWrap" style="margin-top:12px"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10H12z" fill="currentColor" opacity=".15"/></svg>
+          Distribuição
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;margin-top:10px">
+          <svg class="dsv" viewBox="0 0 148 148" id="donutSVG">
+            <circle cx="74" cy="74" r="54" fill="none" stroke="var(--border2)" stroke-width="20"/>
+            <text x="74" y="70" text-anchor="middle" fill="var(--text3)" font-family="system-ui" font-size="10" font-weight="600">SEM</text>
+            <text x="74" y="86" text-anchor="middle" fill="var(--text3)" font-family="system-ui" font-size="9">DADOS</text>
+          </svg>
+          <div class="leg" id="legend" style="width:100%;margin-top:8px"><p style="font-size:13px;color:var(--text3);text-align:center">Adicione contas para ver.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✦ Line Chart: Monthly Evolution -->
+    <div class="card" style="margin-bottom:14px;padding:18px 20px">
+      <div class="chart-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Evolução Mensal
+      </div>
+      <div id="lineChartWrap" style="margin-top:14px"></div>
+    </div>
+
+    <!-- ✦ Auto Insights -->
+    <div class="shd" style="margin-bottom:10px">
+      <div class="shd-title">🧠 Insights Inteligentes</div>
+    </div>
+    <div id="insightsSection" style="margin-bottom:16px"></div>
+
+    <!-- ✦ Payment Progress -->
+    <div class="shd" style="margin-bottom:10px"><div class="shd-title">Progresso de Pagamentos</div></div>
+    <div class="card prog-card" style="margin-bottom:16px">
+      <div class="prog-duo">
+        <div><div class="prog-duo-label">Pagas</div><div class="prog-duo-val" style="color:var(--green)" id="paidAmt">R$ 0</div></div>
+        <div style="text-align:right"><div class="prog-duo-label">Pendentes</div><div class="prog-duo-val" style="color:var(--red)" id="pendingAmt">R$ 0</div></div>
+      </div>
+      <div class="prog-track"><div class="prog-fill fill-green" id="paidBar" style="width:0%"></div></div>
+      <div class="prog-pct" id="paidPct">0% concluído</div>
+    </div>
+    <div id="tipsSection" style="display:none"></div>
+  </div>
+
+  <!-- ── HISTÓRICO ──────────────────────────── -->
+  <div class="page" id="page-historico">
+    <div class="ph">
+      <div><div class="ph-title">Histórico Anual</div><div class="ph-sub" id="histSub">Visão do ano</div></div>
+    </div>
+    <div class="card sav-banner">
+      <div style="font-size:34px;line-height:1">💰</div>
+      <div style="flex:1">
+        <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.8;margin-bottom:2px">Poupança Acumulada</div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-.5px" id="histSavings">R$ 0,00</div>
+        <div style="font-size:12px;opacity:.7;margin-top:2px" id="histSavingsSub">Total guardado</div>
+      </div>
+      <button class="sav-btn" onclick="openSavingsModal('add')">+ Depositar</button>
+      <button class="sav-btn" onclick="openSavingsModal('remove')">− Retirar</button>
+    </div>
+    <div class="shd" style="margin-bottom:10px">
+      <div class="shd-title" id="histYearLabel">Meses</div>
+    </div>
+    <div class="history-grid" id="historyGrid"></div>
+  </div>
+  <!-- ── METAS ─────────────────────────────── -->
+  <div class="page" id="page-metas">
+    <div class="ph">
+      <div><div class="ph-title">Metas</div><div class="ph-sub">Objetivos financeiros</div></div>
+      <button class="btn btn-primary" onclick="openNewGoalModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Meta
+      </button>
+    </div>
+    <div class="goals-summary-row" id="goalsSummaryRow">
+      <div class="gsumm"><div class="gsumm-val" id="gsCount">0</div><div class="gsumm-label">Metas ativas</div></div>
+      <div class="gsumm"><div class="gsumm-val" id="gsSaved">R$ 0</div><div class="gsumm-label">Total guardado</div></div>
+      <div class="gsumm"><div class="gsumm-val" id="gsTarget">R$ 0</div><div class="gsumm-label">Total das metas</div></div>
+    </div>
+    <div class="goal-filter-bar" id="goalFilterBar" style="display:none"></div>
+    <div id="goalsList"></div>
+  </div>
+
+</main>
+</div>
+
+<!-- ══ MODAL: NOVA CONTA ════════════════════════════════ -->
+<div class="overlay" id="modalOv">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">✦ Registrar Nova Conta</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+    </div>
+
+    <!-- Categoria PRIMEIRO para auto-preencher o restante -->
+    <div class="form-group">
+      <label class="form-label">Categoria</label>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <!-- Subcategorias dinâmicas -->
+    <div class="subcat-section" id="subcatSection" style="display:none">
+      <div class="subcat-label"><span class="magic-icon">⚡</span> Subcategoria <span style="font-size:10px;color:var(--text3);font-weight:500;text-transform:none;letter-spacing:0">(toque para preencher automaticamente)</span></div>
+      <div class="subcat-chips" id="subcatChips"></div>
+    </div>
+
+    <!-- Nome com autocomplete -->
+    <div class="form-group">
+      <label class="form-label">Nome da Conta</label>
+      <div class="ac-wrap">
+        <input type="text" class="form-input" id="fName" placeholder="Selecione uma subcategoria ou digite..."
+          oninput="onNameInput(this.value)" onfocus="onNameFocus()" onblur="onNameBlur()" autocomplete="off"/>
+        <div class="ac-dropdown" id="acDropdown"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Valor (R$)</label>
+        <input type="number" class="form-input" id="fAmount" placeholder="0,00" step="0.01"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dia de Vencimento</label>
+        <input type="number" class="form-input" id="fDue" placeholder="Ex: 10" min="1" max="31"/>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="flex:1" onclick="addBill()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Registrar
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ENTRADA EXTRA ════════════════════════════ -->
+<div class="overlay" id="modalExtra">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <span class="modal-title">💸 Entrada Extra</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeExtraModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Origem / Descrição</label>
+      <input type="text" class="form-input" id="extraName" placeholder="Ex: Freela, Venda..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Valor (R$)</label>
+      <input type="number" class="form-input" id="extraAmount" placeholder="0,00" step="0.01"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-green" style="flex:1" onclick="addExtra()">Adicionar Entrada</button>
+      <button class="btn btn-ghost" onclick="closeExtraModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: POUPANÇA ══════════════════════════════════ -->
+<div class="overlay" id="modalSavings">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <span class="modal-title" id="savModalTitle">💰 Depositar</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeSavingsModal()">✕</button>
+    </div>
+
+    <!-- Saldo atual -->
+    <div class="form-group" style="background:var(--bg2);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:13px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);margin-bottom:2px">Poupança atual</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text)" id="savModalBalance">R$ 0,00</div>
+    </div>
+
+    <!-- Info de fluxo real -->
+    <div class="sav-flow-info" id="savFlowInfo">
+      <span style="font-size:16px;flex-shrink:0">💡</span>
+      <span id="savFlowText">Ao depositar, o valor será <strong>descontado do saldo disponível deste mês</strong>, simulando uma transferência real de dinheiro.</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" id="savModalLabel">Valor a depositar (R$)</label>
+      <input type="number" class="form-input" id="savingsAmount" placeholder="0,00" step="0.01"/>
+    </div>
+
+    <!-- Saldo disponível do mês -->
+    <div style="font-size:12px;color:var(--text3);margin-bottom:4px;display:flex;justify-content:space-between" id="savBalRow">
+      <span>Saldo disponível no mês:</span>
+      <span id="savAvailAmt" style="font-weight:700;color:var(--text)">R$ 0,00</span>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-violet" style="flex:1" id="savModalBtn" onclick="confirmSavings()">Confirmar Depósito</button>
+      <button class="btn btn-ghost" onclick="closeSavingsModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: NOVA META ══════════════════════════════════ -->
+<div class="overlay" id="modalNewGoal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">🎯 Nova Meta Financeira</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeNewGoalModal()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Tipo de Meta</label>
+      <div class="goal-type-grid" id="goalTypeGrid"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Categoria <span style="color:var(--text3);font-weight:400;text-transform:none">(opcional)</span></label>
+      <div class="goal-cat-grid" id="goalCategoryGrid"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nome da Meta</label>
+      <input type="text" class="form-input" id="gName" placeholder="Ex: Comprar uma Moto Honda CB"/>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Valor Alvo (R$)</label>
+        <input type="number" class="form-input" id="gTarget" placeholder="15.000" step="0.01" oninput="calcGoalMonthly()"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prazo (mês/ano)</label>
+        <input type="month" class="form-input" id="gDeadline" oninput="calcGoalMonthly()"/>
+      </div>
+    </div>
+
+    <div class="goal-calc-preview" id="goalCalcPreview" style="display:none">
+      <div style="flex:1">
+        <div class="gcp-label">💡 Parcela mensal estimada</div>
+        <div class="gcp-sub" id="goalCalcSub">em 0 meses</div>
+      </div>
+      <div class="gcp-val" id="goalCalcVal">R$ 0</div>
+    </div>
+
+    <div class="form-row" style="margin-top:4px">
+      <div class="form-group">
+        <label class="form-label">Já guardei (R$) <span style="color:var(--text3);font-weight:400;text-transform:none">(opcional)</span></label>
+        <input type="number" class="form-input" id="gInitial" placeholder="0,00" step="0.01" oninput="calcGoalMonthly()"/>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="flex:1" onclick="saveGoal()">Criar Meta 🎯</button>
+      <button class="btn btn-ghost" onclick="closeNewGoalModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: DEPOSITAR NA META ════════════════════════ -->
+<div class="overlay" id="modalGoalDeposit">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <span class="modal-title" id="goalDepModalTitle">💰 Depositar na Meta</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeGoalDepositModal()">✕</button>
+    </div>
+    <div class="gdep-progress-area" id="gdepProgressArea"></div>
+    <div class="form-group">
+      <label class="form-label">Valor a depositar (R$)</label>
+      <input type="number" class="form-input" id="gDepAmount" placeholder="0,00" step="0.01"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="flex:1" onclick="confirmGoalDeposit()">✓ Depositar</button>
+      <button class="btn btn-ghost" onclick="closeGoalDepositModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: COMPARTILHAR RESUMO ══════════════════════ -->
+<div class="overlay" id="shareCardOverlay">
+  <div class="modal share-card-modal">
+    <div class="modal-header">
+      <span class="modal-title">📱 Compartilhar Resumo</span>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('shareCardOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="share-card-preview">
+      <canvas id="shareCardCanvas" width="540" height="540" style="width:100%;border-radius:8px"></canvas>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="downloadShareCard()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar Imagem
+      </button>
+      <button class="btn btn-ghost" onclick="shareCardNative()" id="shareCardNativeBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Compartilhar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PWA: INSTALL BANNER ══════════════════════ -->
+<div id="pwaInstallBanner" class="pwa-install-banner" style="display:none">
+  <div class="pwa-install-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+  </div>
+  <div class="pwa-install-info">
+    <div class="pwa-install-title">Instalar FinWise</div>
+    <div class="pwa-install-sub">Acesse sem internet, como um app nativo</div>
+  </div>
+  <button class="pwa-install-btn" id="pwaInstallBtn">Instalar</button>
+  <button class="pwa-install-close" id="pwaInstallClose" title="Dispensar">✕</button>
+</div>
+
+<!-- ══ PWA: UPDATE BANNER ═══════════════════════ -->
+<div id="pwaUpdateBanner" class="pwa-update-banner" style="display:none">
+  <span class="pwa-update-icon">🔄</span>
+  <span class="pwa-update-text">Nova versão disponível!</span>
+  <button class="pwa-update-btn" id="pwaUpdateBtn">Atualizar agora</button>
+  <button class="pwa-install-close" id="pwaUpdateClose">✕</button>
+</div>
+
+<!-- ══ PWA: OFFLINE INDICATOR ═══════════════════ -->
+<div id="offlineIndicator" class="offline-indicator" style="display:none">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+  Sem internet — dados locais ativos
+</div>
+
+
+<!-- ══ BOTTOM NAV (mobile) ══════════════════════════════ -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Navegação">
+  <div class="bottom-nav-inner">
+    <button class="bn-btn active" id="bn-dashboard" onclick="goTo('dashboard',this);syncBottomNav('dashboard')" aria-label="Visão Geral">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>Geral</span>
+    </button>
+    <button class="bn-btn" id="bn-contas" onclick="goTo('contas',this);syncBottomNav('contas')" aria-label="Contas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Contas</span>
+    </button>
+    <button class="bn-btn" id="bn-analise" onclick="goTo('analise',this);syncBottomNav('analise')" aria-label="Análise">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Análise</span>
+    </button>
+    <button class="bn-btn" id="bn-historico" onclick="goTo('historico',this);syncBottomNav('historico')" aria-label="Histórico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Histórico</span>
+    </button>
+    <button class="bn-btn" id="bn-metas" onclick="goTo('metas',this);syncBottomNav('metas')" aria-label="Metas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <span>Metas</span>
+    </button>
+  </div>
+</nav>
+
+<script src="script.js"></script>
+
+<script>
+/* ── Mobile bottom nav sync ── */
+function syncBottomNav(page) {
+  document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
+  var el = document.getElementById('bn-' + page);
+  if (el) el.classList.add('active');
+}
+// Patch goTo to also sync bottom nav
+var _origGoTo = goTo;
+// We call syncBottomNav from onclick directly, so no patching needed.
+</script>
+
+</body>
+</html>
